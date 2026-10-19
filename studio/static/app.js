@@ -44,7 +44,8 @@ async function poll() {
     const success=job.success||0,failed=job.failed||0;
     message(job.error || (job.status==='completed'?`Готово. Создано документов: ${success}.`:job.status==='partial'?`Создано документов: ${success}. Не обработано: ${failed}. Проверьте ошибки ниже.`:'Предложения не созданы. Причина указана ниже.'),job.status==='completed'?'':'error');
     $('results-section').hidden=false;$('resultcount').textContent=`Создано: ${success} · Ошибок: ${failed}`;$('results').replaceChildren();
-    $('resultnote').textContent=job.mode==='demo'?'Демонстрация: текст из локального шаблона, без AI.':'Предложения подготовлены с помощью AI. Проверьте содержание перед отправкой.';
+    $('results-title').textContent=success?'Готовые документы':'Результат обработки';
+    $('resultnote').textContent=job.mode==='demo'?'Демонстрация: текст из локального шаблона, без AI.':success?'Предложения подготовлены с помощью AI. Проверьте содержание перед отправкой.':'AI-предложения не созданы. Исправьте причину ошибки и повторите обработку.';
     for(const entry of job.results||[]){
       const li=document.createElement('li');const info=document.createElement('div');const strong=document.createElement('strong');strong.textContent=entry.company||`Строка ${entry.row}`;const detail=document.createElement('small');detail.textContent=entry.status==='ok'?'PDF сохранён в папке компании':entry.error;if(entry.status!=='ok')detail.className='error';info.append(strong,detail);li.append(info);
       if(entry.download){const a=document.createElement('a');a.href=entry.download;a.className='download';a.download='Предложение.pdf';a.textContent='Скачать PDF';li.append(a);}$('results').append(li);
