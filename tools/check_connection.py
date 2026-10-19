@@ -5,7 +5,7 @@ import urllib.request
 
 try:
     print('DNS addresses:', len(socket.getaddrinfo('api.proxyapi.ru', 443)), flush=True)
-    request = urllib.request.Request('https://api.proxyapi.ru/v1', method='HEAD')
+    request = urllib.request.Request('https://api.proxyapi.ru/v1/models', method='GET')
     with urllib.request.urlopen(request, timeout=20) as response:
         print('HTTPS:', response.status)
 except urllib.error.HTTPError as exc:

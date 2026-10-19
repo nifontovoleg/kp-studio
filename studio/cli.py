@@ -27,7 +27,7 @@ def main():
         print('Режим: ' + ('демонстрация без AI' if args.demo else 'API — запросы расходуют баланс провайдера'), flush=True)
         result = run_batch(args.input, args.output, demo=args.demo, limit=args.limit)
         for entry in result['results']:
-            print(f'Строка {entry["row"]}: ' + (entry['pdf'] if entry['status'] == 'ok' else entry['error']), flush=True)
+            print(f'Строка {entry["row"]}: ' + (str(args.output / entry['pdf']) if entry['status'] == 'ok' else entry['error']), flush=True)
         print(f'Готово: {result["success"]}; ошибок: {result["failed"]}. Журнал: {args.output / "journal.jsonl"}')
         return 1 if result['failed'] else 0
     except Exception as exc:

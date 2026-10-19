@@ -5,6 +5,7 @@ import json
 import math
 import os
 import re
+import time
 import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
@@ -91,18 +92,39 @@ def company_folder(name: str) -> str:
     return cleaned + '_' + hashlib.sha256(name.encode()).hexdigest()[:8]
 
 
+DEFAULT_BASE_URL = 'https://api.proxyapi.ru/v1'
+DEFAULT_MODEL = 'openai/gpt-5-mini'
+
+
 class Generator:
+    # One extra attempt for transient failures: timeouts, network errors, HTTP 429 and 5xx.
+    retries = 1
+    backoff = 3.0
+
     def __init__(self):
         load_dotenv(ROOT / '.env')
         key = os.getenv('OPENAI_API_KEY', '').strip()
         if not key:
             raise ValueError('Не задан OPENAI_API_KEY в .env.')
-        self.model = os.getenv('OPENAI_MODEL', 'openai/gpt-5-mini')
-        self.api = OpenAI(api_key=key, base_url=os.getenv('OPENAI_BASE_URL', 'https://api.proxyapi.ru/v1'), timeout=90, max_retries=0)
+        self.model = os.getenv('OPENAI_MODEL', '').strip() or DEFAULT_MODEL
+        base_url = os.getenv('OPENAI_BASE_URL', '').strip() or DEFAULT_BASE_URL
+        self.api = OpenAI(api_key=key, base_url=base_url, timeout=90, max_retries=0)
+
+    def _create(self, **request):
+        attempt = 0
+        while True:
+            try:
+                return self.api.chat.completions.create(**request)
+            except (APIConnectionError, APITimeoutError, APIStatusError) as exc:
+                transient = not isinstance(exc, APIStatusError) or exc.status_code == 429 or exc.status_code >= 500
+                if not transient or attempt >= self.retries:
+                    raise
+                attempt += 1
+                time.sleep(self.backoff * attempt)
 
     def generate(self, client: Client) -> str:
         try:
-            response = self.api.chat.completions.create(
+            response = self._create(
                 model=self.model,
                 messages=[
                     {'role': 'system', 'content': (
@@ -138,6 +160,8 @@ def register_fonts():
         (ROOT / 'assets' / 'DejaVuSans.ttf', ROOT / 'assets' / 'DejaVuSans-Bold.ttf'),
         (Path('C:/Windows/Fonts/arial.ttf'), Path('C:/Windows/Fonts/arialbd.ttf')),
         (Path('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'), Path('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf')),
+        (Path('/System/Library/Fonts/Supplemental/Arial.ttf'), Path('/System/Library/Fonts/Supplemental/Arial Bold.ttf')),
+        (Path('/Library/Fonts/Arial.ttf'), Path('/Library/Fonts/Arial Bold.ttf')),
     ]
     for regular, bold in candidates:
         if regular.exists() and bold.exists():
@@ -224,7 +248,8 @@ def run_batch(source: Path, output: Path, *, demo=False, limit=None, generator=N
                 temporary = path.with_suffix('.tmp')
                 render_pdf(temporary, client, text, demo=demo)
                 temporary.replace(path)
-                record({'row': row, 'company': client.company, 'status': 'ok', 'pdf': str(path.resolve()), 'text': str(text_path.resolve())})
+                # Paths are relative to the output folder so the journal can be moved or shared.
+                record({'row': row, 'company': client.company, 'status': 'ok', 'pdf': path.relative_to(output).as_posix(), 'text': text_path.relative_to(output).as_posix()})
             except Exception as exc:
                 # Never store provider response bodies or credentials in logs.
                 error = str(exc) if isinstance(exc, (ValueError, RuntimeError)) else f'Ошибка обработки ({type(exc).__name__}). Проверьте доступ к папке и входные данные.'

@@ -92,7 +92,7 @@ class Handler(BaseHTTPRequestHandler):
                     if index < 0:
                         raise ValueError
                     entry = job['summary']['results'][index]
-                    target = Path(entry['pdf']).resolve()
+                    target = (ROOT / 'output' / entry['pdf']).resolve()
                     if not target.is_relative_to((ROOT / 'output').resolve()) or target.suffix != '.pdf':
                         raise ValueError
                 return self.respond(200, target.read_bytes(), 'application/pdf', attachment=True)

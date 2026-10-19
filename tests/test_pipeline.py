@@ -116,5 +116,63 @@ def test_prior_success_survives_provider_failure(tmp_path, abort):
     assert engine.calls == (['А', 'Б'] if abort else ['А', 'Б', 'В'])
     assert result['success'] == (1 if abort else 2)
     assert len(result['results']) == 3
-    assert Path(result['results'][0]['pdf']).exists()
+    assert not Path(result['results'][0]['pdf']).is_absolute()
+    assert (out / result['results'][0]['pdf']).exists()
     assert len((out / 'journal.jsonl').read_text(encoding='utf-8').splitlines()) == 3
+
+
+def _fake_engine(outcomes, monkeypatch):
+    """Generator with a fake OpenAI client: each call pops the next outcome (exception or text)."""
+    from types import SimpleNamespace
+    sleeps = []
+    monkeypatch.setattr('studio.core.time.sleep', sleeps.append)
+    engine = Generator.__new__(Generator)
+    engine.model = 'test'
+    calls = []
+    class Completions:
+        def create(self, **kwargs):
+            calls.append(kwargs)
+            outcome = outcomes.pop(0)
+            if isinstance(outcome, Exception):
+                raise outcome
+            return SimpleNamespace(choices=[SimpleNamespace(finish_reason='stop', message=SimpleNamespace(content=outcome))])
+    engine.api = SimpleNamespace(chat=SimpleNamespace(completions=Completions()))
+    return engine, calls, sleeps
+
+
+def _status_error(code):
+    import httpx
+    from openai import APIStatusError
+    request = httpx.Request('POST', 'https://api.example.test/v1/chat/completions')
+    return APIStatusError('error', response=httpx.Response(code, request=request), body=None)
+
+
+def _timeout_error():
+    import httpx
+    from openai import APITimeoutError
+    return APITimeoutError(request=httpx.Request('POST', 'https://api.example.test/v1/chat/completions'))
+
+
+@pytest.mark.parametrize('make_error', [_timeout_error, lambda: _status_error(429), lambda: _status_error(502)])
+def test_transient_error_is_retried_once(monkeypatch, make_error):
+    engine, calls, sleeps = _fake_engine([make_error(), 'Готовый текст'], monkeypatch)
+    assert engine.generate(Client('Тест', 'Имя', 'Задача', 10)) == 'Готовый текст'
+    assert len(calls) == 2
+    assert sleeps == [Generator.backoff]
+
+
+def test_second_transient_error_stops_batch(monkeypatch):
+    engine, calls, sleeps = _fake_engine([_timeout_error(), _timeout_error(), 'не дойдёт'], monkeypatch)
+    with pytest.raises(ProviderError) as info:
+        engine.generate(Client('Тест', 'Имя', 'Задача', 10))
+    assert info.value.abort_batch
+    assert len(calls) == 2 and len(sleeps) == 1
+
+
+@pytest.mark.parametrize('code', [401, 402])
+def test_auth_and_balance_errors_fail_fast(monkeypatch, code):
+    engine, calls, sleeps = _fake_engine([_status_error(code), 'не дойдёт'], monkeypatch)
+    with pytest.raises(ProviderError, match=f'HTTP {code}') as info:
+        engine.generate(Client('Тест', 'Имя', 'Задача', 10))
+    assert info.value.abort_batch
+    assert len(calls) == 1 and not sleeps

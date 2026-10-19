@@ -1,5 +1,10 @@
 {
+  "checked_at": "2026-10-19T13:35:00+05:00",
+  "command": "python -m studio examples/clients.csv --limit 1",
+  "base_url": "https://api.proxyapi.ru/v1",
+  "model": "openai/gpt-5-mini",
+  "network": "api.proxyapi.ru:443 доступен, ответ за 3–5 с (таймаута больше нет)",
   "status": "Предложения не созданы. Причина указана ниже.",
-  "details": "Кофейня Север\nНет ответа от API. Проверьте соединение и доступность ProxyAPI.",
+  "details": "Кофейня Север\nAPI вернул HTTP 401. Проверьте API-ключ. (ProxyAPI: Invalid API Key)",
   "success": false
 }
