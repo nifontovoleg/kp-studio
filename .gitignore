@@ -6,3 +6,4 @@ output/
 .tmp/
 release/
 *.egg-info/
+docs/demo/*.webm
