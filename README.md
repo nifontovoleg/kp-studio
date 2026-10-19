@@ -5,13 +5,13 @@
 - **Windows:** `powershell -ExecutionPolicy Bypass -File .\setup.ps1`, затем двойной клик `ОТКРЫТЬ СТУДИЮ.cmd` (или `ДЕМО.cmd` — без AI).
 - **macOS / Linux:** `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt && .venv/bin/python -m studio examples/clients.csv --demo`
 - Ключ ProxyAPI — в `.env` (образец `.env.example`); без `--demo` идёт реальная генерация, `--limit 1` — один клиент, `--check` — только проверка таблицы.
-- Результат: [образец PDF](examples/Образец%20КП.pdf), пример таблицы на 7 клиентов — [examples/clients.csv](examples/clients.csv).
+- Результат: [КП, написанное AI](examples/Образец%20КП%20(AI).pdf), ещё три AI-примера — в [examples/AI-примеры](examples/AI-примеры), таблица на 7 клиентов — [examples/clients.csv](examples/clients.csv).
 
 ![Рабочий экран](docs/demo/03-results.png)
 
 Материалы: [ТЗ в DOCX](docs/Техническое%20задание.docx), [скринкаст](docs/demo/Демонстрация.webm), [отчёт о проверке](docs/Проверка%20проекта.md). Деморежим помечает документы и не выдаёт шаблон за результат AI.
 
-Статус на 19.10.2026: ProxyAPI отвечает по адресу `https://api.proxyapi.ru/v1`, но текущий ключ отклонён (HTTP 401), поэтому образец PDF пока демонстрационный; AI-образец будет добавлен после замены ключа.
+Проверено 19.10.2026: реальная генерация через `https://api.proxyapi.ru/v1`, модель `openai/gpt-5-mini` — 4 из 4 PDF созданы ([отчёт](docs/demo/live-check.json)). Текст AI перед отправкой клиенту проверяет человек.
 
 ## Подробно: запуск на Windows
 

@@ -1,10 +1,27 @@
 {
-  "checked_at": "2026-10-19T13:35:00+05:00",
-  "command": "python -m studio examples/clients.csv --limit 1",
+  "checked_at": "2026-10-19T13:26:00+05:00",
   "base_url": "https://api.proxyapi.ru/v1",
   "model": "openai/gpt-5-mini",
-  "network": "api.proxyapi.ru:443 доступен, ответ за 3–5 с (таймаута больше нет)",
-  "status": "Предложения не созданы. Причина указана ниже.",
-  "details": "Кофейня Север\nAPI вернул HTTP 401. Проверьте API-ключ. (ProxyAPI: Invalid API Key)",
-  "success": false
+  "runs": [
+    {
+      "command": "python -m studio examples/clients.csv --limit 1",
+      "success": 1,
+      "failed": 0,
+      "seconds": 13
+    },
+    {
+      "command": "python -m studio examples/clients.csv --limit 3",
+      "success": 3,
+      "failed": 0,
+      "seconds": 40
+    }
+  ],
+  "status": "Предложения созданы реальной моделью через ProxyAPI.",
+  "pdf": [
+    "examples/Образец КП (AI).pdf",
+    "examples/AI-примеры/КП (AI) — Кофейня Север.pdf",
+    "examples/AI-примеры/КП (AI) — Студия дизайна Линия.pdf",
+    "examples/AI-примеры/КП (AI) — Логистика Вектор.pdf"
+  ],
+  "success": true
 }
