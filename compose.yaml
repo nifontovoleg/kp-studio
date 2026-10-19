@@ -1,0 +1,9 @@
+name: kp-studio
+services:
+  studio:
+    build: .
+    env_file: .env
+    volumes:
+      - ./output:/app/output
+      - ./examples:/app/examples:ro
+    command: ["examples/clients.csv", "--demo"]

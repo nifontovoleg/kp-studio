@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>КП-студия — коммерческие предложения</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body>
+<header class="topbar"><a class="brand" href="/" aria-label="КП-студия — на главную"><svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true"><rect width="30" height="30" rx="7" fill="currentColor"/><path d="M8 8h9l5 5v9H8V8Z" stroke="white" stroke-width="1.5"/><path d="M17 8v6h5M11 17h8M11 20h6" stroke="white" stroke-width="1.5"/></svg>КП-студия</a><span class="local">Работает на вашем компьютере</span></header>
+<main>
+<div class="intro"><h1>От таблицы к предложению</h1><p>Загрузите клиентов — получите отдельный PDF для каждой компании.</p></div>
+<div class="workspace">
+<aside class="controls" aria-label="Подготовка предложений">
+<section><h2>Таблица клиентов</h2><p class="muted">CSV или Excel, до 100 клиентов.</p><label class="filebox" for="file"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 16v4h16v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><strong id="filename">Выбрать таблицу</strong><span>Нажмите, чтобы открыть файл</span></label><input id="file" type="file" accept=".csv,.xlsx"><button class="secondary full" id="example" type="button">Попробовать на примере</button><p class="hint">Нужны компания, контакт, потребности и бюджет в рублях. <a href="/api/example" download="clients.csv">Скачать шаблон CSV</a></p></section>
+<section class="generation"><h2>Способ генерации</h2><fieldset><legend class="sr-only">Выберите способ генерации</legend><label class="choice"><input type="radio" name="mode" value="demo" checked><span><strong>Демонстрация</strong><small>Локальный шаблон, без расходов</small></span></label><label class="choice"><input type="radio" name="mode" value="api"><span><strong>С помощью AI</strong><small>Расходует баланс ProxyAPI</small></span></label></fieldset><button class="primary full" id="generate" type="button" disabled>Создать предложения</button><p class="hint" id="modehint">В демо PDF будут помечены как демонстрационные.</p></section>
+</aside>
+<div class="content">
+<section class="sheet" aria-labelledby="clients-title"><div class="section-top"><h2 id="clients-title">Клиенты</h2><span class="count" id="clientcount">Таблица не загружена</span></div><div id="empty" class="empty"><svg width="58" height="64" viewBox="0 0 58 64" fill="none" aria-hidden="true"><path d="M10 3h25l13 13v45H10V3Z" fill="#EAF3F1" stroke="#769A93" stroke-width="1.4"/><path d="M35 3v14h13M18 29h22M18 38h22M18 47h14" stroke="#769A93" stroke-width="1.4"/></svg><h3>Начните с таблицы</h3><p>Выберите свой файл или попробуйте пример<br>с тремя вымышленными компаниями.</p></div><div class="tablewrap" id="tablewrap" role="region" aria-label="Таблица клиентов с горизонтальной прокруткой" tabindex="0" hidden><table><thead><tr><th scope="col">Компания и контакт</th><th scope="col">Потребности</th><th scope="col" class="amount">Бюджет</th></tr></thead><tbody id="clients"></tbody></table></div><div id="validation" class="validation" hidden></div></section>
+<div id="message" class="message" role="status" aria-live="polite" hidden></div>
+<section class="sheet results" id="results-section" hidden aria-labelledby="results-title"><div class="section-top"><h2 id="results-title">Готовые документы</h2><span class="count" id="resultcount"></span></div><p class="resultnote" id="resultnote"></p><ul id="results"></ul><div class="resultfooter"><a href="/api/journal" download="journal.jsonl">Скачать журнал обработки</a><span>Проверьте текст перед отправкой клиенту</span></div></section>
+<div class="workflow"><span>Таблица клиентов</span><span aria-hidden="true">→</span><span>Текст предложения</span><span aria-hidden="true">→</span><span>PDF по компаниям</span></div>
+</div></div>
+<footer>Локальные документы сохраняются в папке output. В режиме AI данные клиентов передаются провайдеру.</footer>
+</main>
+</body></html>

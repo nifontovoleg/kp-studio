@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "checks": [
+    "example CSV",
+    "XLSX upload",
+    "PDF creation",
+    "PDF download",
+    "journal download",
+    "invalid row",
+    "partial success",
+    "390px viewport"
+  ],
+  "consoleErrors": [],
+  "requestFailures": []
+}
