@@ -4,6 +4,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY studio/ studio/
+COPY certs/ certs/
 COPY examples/ examples/
 RUN useradd --create-home studio && mkdir /app/output && chown studio:studio /app/output
 USER studio
